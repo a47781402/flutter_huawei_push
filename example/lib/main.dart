@@ -13,11 +13,14 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
+  String _token = 'Unknown';
+  final FlutterHuaweiPush flutterHuaweiPush = new FlutterHuaweiPush();
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
+//    FlutterHuaweiPush().HMSAgentInIt();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -25,7 +28,7 @@ class _MyAppState extends State<MyApp> {
     String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      platformVersion = await FlutterHuaweiPush.platformVersion;
+      platformVersion = await flutterHuaweiPush.platformVersion;
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -49,9 +52,13 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Center(
           child:
-              GestureDetector(onTap:(){
-                FlutterHuaweiPush.getToken();
-              },child: Text('Running on: $_platformVersion\n')),
+              GestureDetector(onTap:() async {
+                String token = await flutterHuaweiPush.getToken;
+                setState(() {
+                  _token = token;
+                });
+
+              },child: Text('Running on: $_token\n')),
         ),
       ),
     );

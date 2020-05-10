@@ -63,6 +63,8 @@ android {
 
     buildTypes {
         debug {
+//            signingConfig signingConfigs.config
+            signingConfig signingConfigs.debug
             ndk {
                 //这里要加上，否则debug包会出问题,后面三个为可选，x86建议加上不然部分模拟器回报错
                 abiFilters "armeabi-v7a", "x86"
@@ -72,7 +74,13 @@ android {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
+
+//            signingConfig signingConfigs.config
+//            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             ndk {
                 abiFilters "armeabi-v7a"
             }

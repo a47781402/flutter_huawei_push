@@ -37,7 +37,7 @@
                 android:value="androidhwext:style/Theme.Emui.Translucent" />
         </activity>
 
-        <receiver android:name="com.example.flutter_huawei_push.HWNotifyReceiver">
+        <receiver android:name="com.example.flutter_huawei_push.MyPushService">
             <intent-filter>
                 <!-- 必须,用于接收token | Must， for receiving token -->
                 <action android:name="com.huawei.android.push.intent.REGISTRATION" />

@@ -5,10 +5,14 @@
          In most cases you can leave this as-is, but you if you want to provide
          additional functionality it is fine to subclass or reimplement
          FlutterApplication and put your custom class here. -->
+    <!-- 接收PUSH TOKEN的广播以及PUSH消息需要定义该权限 com.example.flutter_huawei_push_example 要替换上您应用的包名 -->
     <permission
         android:name="com.example.flutter_huawei_push_example.permission.PROCESS_PUSH_MSG"
-        android:protectionLevel="signatureOrSystem" /> <!-- 接收PUSH TOKEN的广播以及PUSH消息需要定义该权限 cn.dongchen.android.dcandroid 要替换上您应用的包名 -->
+        android:protectionLevel="signatureOrSystem"/>
+
+    <!--接收PUSH TOKEN的广播以及PUSH消息需要定义该权限 com.example.flutter_huawei_push_example 要替换上您应用的包名 -->
     <uses-permission android:name="com.example.flutter_huawei_push_example.permission.PROCESS_PUSH_MSG" />
+
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="flutter_huawei_push_example"
@@ -34,10 +38,21 @@
         <meta-data
             android:name="com.huawei.hms.client.appid"
             android:value="appid=102178463" />
+        <!-- 接入HMSSDK 需要注册的provider，authorities 一定不能与其他应用一样，所以这边 com.example.flutter_huawei_push_example 要替换上您应用的包名
+            Access HMSSDK need to register provider,authorities must not be the same as other applications, so this side ${package_name} to replace the package name you applied-->
         <provider
             android:name="com.huawei.hms.update.provider.UpdateProvider"
             android:authorities="com.example.flutter_huawei_push_example.hms.update.provider"
             android:exported="false"
-            android:grantUriPermissions="true" />
+            android:grantUriPermissions="true"/>
+
+        <!-- 接入HMSSDK 需要注册的provider，authorities 一定不能与其他应用一样，所以这边 com.example.flutter_huawei_push_example 要替换上您应用的包名
+            Access HMSSDK need to register provider,authorities must not be the same as other applications, so this side ${package_name} to replace the package name you applied-->
+        <provider
+            android:name="com.huawei.updatesdk.fileprovider.UpdateSdkFileProvider"
+            android:authorities="com.example.flutter_huawei_push_example.updateSdk.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+        </provider>
     </application>
 </manifest>
