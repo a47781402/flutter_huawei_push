@@ -23,6 +23,7 @@ class FlutterHuaweiPush {
     return version;
   }
 
+  /// change
    Future<String> get getToken async {
     final String token = await _channel.invokeMethod('getToken');
     return token;
