@@ -27,7 +27,8 @@ public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler
 
 
   private static String TAG = "| FlutterHuaweiPushPlugin | Flutter | Android | ";
-
+  // token标记
+  private static String KEY_TOKEN = "action.updateToken";
   public static void registerWith(Registrar registrar) {
 
     final MethodChannel channel = new MethodChannel(registrar.messenger(), "flutter_huawei_push");
@@ -64,7 +65,7 @@ public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler
     }
   }
 
-  public String getToken(MethodCall call, Result result) {
+  public void getToken(MethodCall call, final Result result) {
     Log.d(TAG,"getToken： ");
     HMSAgent.Push.getToken(new GetTokenHandler() {
       @Override
@@ -84,12 +85,21 @@ public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler
     MyPushService.registerPushCallback(new MyPushService.IPushCallback() {
       @Override
       public void onReceive(Intent intent) {
-        token = intent.getExtras().getString("action.updateToken");;
-
-        Log.d("getToken",  token);
+        // 判断token是否有值
+        if(intent.hasExtra(KEY_TOKEN)){
+          // 获取token
+          token = intent.getStringExtra(KEY_TOKEN);
+          Log.d("getToken",  token);
+          // 成功返回token
+          result.success(token);
+        }else {
+          // 失败返回错误信息
+          result.error("-1","未拿到token","未拿到token");
+        }
       }
+
     });
-    return token;
+//    return token;
 //    result.success(code);
   }
 

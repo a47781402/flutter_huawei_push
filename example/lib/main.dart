@@ -41,8 +41,26 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _platformVersion = platformVersion;
     });
+    getToken();
   }
+  Future<void> getToken() async {
+    String token;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      token = await flutterHuaweiPush.getToken;
+    } on PlatformException {
+      token = 'Failed to get platform version.';
+    }
 
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _token = token;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -52,13 +70,9 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Center(
           child:
-              GestureDetector(onTap:() async {
-                String token = await flutterHuaweiPush.getToken;
-                setState(() {
-                  _token = token;
-                });
-
-              },child: Text('Running on: $_token\n')),
+              GestureDetector(onTap:()  {
+                getToken();
+              },child: Text('Running on: $_token\nRunning on: $_platformVersion\n')),
         ),
       ),
     );

@@ -21,14 +21,14 @@ public class MainActivity extends FlutterActivity {
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine);
         HMSAgent.init(this);
-        HMSAgent.connect(this, new ConnectHandler() {
-            @Override
-            public void onConnect(int rst) {
-                Log.e("MainActivity","connect result" + rst);
-            }
-        });
+//        HMSAgent.connect(this, new ConnectHandler() {
+//            @Override
+//            public void onConnect(int rst) {
+//                Log.e("MainActivity","connect result" + rst);
+//            }
+//        });
 
-        getToken();
+//        getToken();
 
 
 //        Log.d("MainActivity", "getToken： ");

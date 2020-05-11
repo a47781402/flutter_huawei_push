@@ -24,9 +24,14 @@ if (flutterVersionName == null) {
 apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
+//def keystorePropertiesFile = rootProject.file("key.properties")
+//def keystoreProperties = new Properties()
+//keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 def keystorePropertiesFile = rootProject.file("key.properties")
 def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+if (keystorePropertiesFile.exists()){
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
 
 android {
     compileSdkVersion 28
@@ -56,15 +61,21 @@ android {
         release {
             keyAlias 'flutter_huawei_push'
             keyPassword '111111'
-            storeFile file('key/flutter_huawei_push.jks')
+            storeFile file('src/key/flutter_huawei_push.jks')
             storePassword '111111'
         }
+//        release {
+//            keyAlias keystoreProperties['keyAlias']
+//            keyPassword keystoreProperties['keyPassword']
+//            storeFile file(keystoreProperties['storeFile'])
+//            storePassword keystoreProperties['storePassword']
+//        }
     }
 
     buildTypes {
         debug {
-//            signingConfig signingConfigs.config
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
+//            signingConfig signingConfigs.debug
             ndk {
                 //这里要加上，否则debug包会出问题,后面三个为可选，x86建议加上不然部分模拟器回报错
                 abiFilters "armeabi-v7a", "x86"
