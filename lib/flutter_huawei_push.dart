@@ -24,43 +24,20 @@ class FlutterHuaweiPush {
     return version;
   }
 
+  /// 请求token
+   Future<void>  reqToken() async {
+    print("使用了Token");
+     _channel.invokeMethod('Token');
+
+//     final Map<dynamic, dynamic> result = await _channel.invokeMethod('Token');
+//     return token;
+  }
+  ///获取token
   Future<String> get getToken async {
     final String token = await _channel.invokeMethod('getToken');
+    print(token);
     return token;
   }
 
-  /// change
-   Future<String> get Token async {
-     print("00000000000000000:::::");
-     final Map<dynamic, dynamic> result = await _channel.invokeMethod('Token');
-     print("11111111111111111:::::$result");
-     String token = result["token"];
-     print("22222222222222:::::$token");
-     return token;
-//     _eventChannel.receiveBroadcastStream().listen((data){
-//        token = data;
-//        print("00000000000000000:::::$token");
-//        return token;
-//    });
-
-
-  }
-
-//  Future<String> get getToken async {
-//    String token ;
-//    _channel.invokeMethod('getToken');
-//    _channel.setMethodCallHandler((handler){
-//      switch(handler.method){
-//        case "token":
-//          token = handler.arguments.toString();
-//          print("111111111111111:::::$token");
-//      }
-//    });
-//    print("2222222222222222222222:::::$token");
-////     _eventChannel.receiveBroadcastStream().listen((data){
-////        token = data;
-////    });
-//    return token;
-//  }
 
 }

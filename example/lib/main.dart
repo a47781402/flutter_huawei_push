@@ -52,7 +52,8 @@ class _MyAppState extends State<MyApp> {
   Future<void> getToken() async {
     String token;
     try {
-      final String result = await platform.invokeMethod('getToken');
+//      final String result = await platform.invokeMethod('getToken');
+      final String result = await flutterHuaweiPush.getToken;
       token = result;
     } on PlatformException catch (e) {
       token = "Failed to get battery level: '${e.message}'.";
@@ -73,12 +74,22 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: GestureDetector(
-              onTap: () {
-                getToken();
-              },
-              child:
-                  Text('Running on: $_token\nRunning on: $_platformVersion\n')),
+          child: Column(
+            children: <Widget>[
+              GestureDetector(
+                  onTap: () {
+                    flutterHuaweiPush.reqToken();
+                  },
+                  child:
+                  Text('按钮')),
+              GestureDetector(
+                  onTap: () {
+                    getToken();
+                  },
+                  child:
+                      Text('Running on: $_token\nRunning on: $_platformVersion\n')),
+            ],
+          ),
         ),
       ),
     );

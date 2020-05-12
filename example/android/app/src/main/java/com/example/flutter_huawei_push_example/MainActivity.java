@@ -26,7 +26,7 @@ public class MainActivity extends FlutterActivity {
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine);
         HMSAgent.init(this);
-        getToken();
+//        getToken();
         FlutterHuaweiPushPlugin flutterHuaweiPushPlugin = new FlutterHuaweiPushPlugin();
         flutterHuaweiPushPlugin.Token();
 
@@ -38,19 +38,19 @@ public class MainActivity extends FlutterActivity {
 //        });
 
 
-        new MethodChannel(flutterEngine.getDartExecutor(), CHANNEL).setMethodCallHandler(
-                new MethodChannel.MethodCallHandler() {
-                    @Override
-                    public void onMethodCall(MethodCall call, MethodChannel.Result result) {
-                        if (call.method.equals("getToken")) {
-
-                            String token = flutterHuaweiPushPlugin.getToken();
-                            result.success(token);
-                        } else {
-                            result.notImplemented();
-                        }
-                    }
-                });
+//        new MethodChannel(flutterEngine.getDartExecutor(), CHANNEL).setMethodCallHandler(
+//                new MethodChannel.MethodCallHandler() {
+//                    @Override
+//                    public void onMethodCall(MethodCall call, MethodChannel.Result result) {
+//                        if (call.method.equals("getToken")) {
+//
+//                            String token = flutterHuaweiPushPlugin.getToken();
+//                            result.success(token);
+//                        } else {
+//                            result.notImplemented();
+//                        }
+//                    }
+//                });
 //        HMSAgent.connect(this, new ConnectHandler() {
 //            @Override
 //            public void onConnect(int rst) {

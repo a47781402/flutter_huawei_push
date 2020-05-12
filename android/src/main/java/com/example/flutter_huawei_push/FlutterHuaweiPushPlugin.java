@@ -97,6 +97,7 @@ public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler
             switch (msg.what) {
                 case 1:
                     token = (String) msg.obj;
+                    Log.d(TAG, "handleMessage: "+token);
             }
         }
     };
@@ -105,8 +106,12 @@ public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
         if (call.method.equals("getPlatformVersion")) {
             result.success("Android " + android.os.Build.VERSION.RELEASE);
-        } else if (call.method.equals("getToken")) {
+        } else if (call.method.equals("Token")) {
             Token();
+            Log.d(TAG, "onMethodCall: "+token);
+        } else if (call.method.equals("getToken")) {
+            Log.d(TAG, "onMethodCall11111: "+token);
+            result.success(token);
         }  else {
             result.notImplemented();
         }
@@ -130,6 +135,7 @@ public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler
                             message.what = 1;
                             message.obj = token_value;
                             handler.sendMessage(message);
+                            Log.d(TAG, "onReceive: "+ token);
                         }
                     }
                 });
