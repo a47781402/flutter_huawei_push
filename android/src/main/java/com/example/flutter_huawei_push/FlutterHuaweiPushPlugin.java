@@ -1,5 +1,7 @@
 package com.example.flutter_huawei_push;
 
+import android.app.Activity;
+import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,9 +18,12 @@ import androidx.annotation.NonNull;
 import com.huawei.android.hms.agent.HMSAgent;
 import com.huawei.android.hms.agent.push.handler.GetTokenHandler;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -31,79 +36,57 @@ import io.flutter.view.FlutterNativeView;
 /**
  * FlutterHuaweiPushPlugin
  */
-public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler {
+public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware {
 
 
     private static String TAG = "| FlutterHuaweiPushPlugin | Flutter | Android | ";
     // token标记
     private static String KEY_TOKEN = "action.updateToken";
     private String EVENT_TOKEN = "action.event.token";
-    private static String EVENT_ACTION = "flutter_huawei_push_event";
-    private EventChannel.EventSink plugineventSink;
-    private BroadcastReceiver mStateChangeReceiver;
+    private static String Method_Channel_ACTION = "flutter_huawei_push";
+    private static String EVENT_Channel_ACTION = "flutter_huawei_push_event";
+//    private EventChannel.EventSink plugineventSink;
+//    private BroadcastReceiver mStateChangeReceiver;
+    // 获取环境
     private FlutterPluginBinding flutterPluginBinding;
-    private MethodChannel channel;
-    private EventChannel eventChannel;
+    private MethodChannel mMethodChannel;
+    private EventChannel mEventChannel;
+    private WeakReference<Activity> mActivity;
+    private Application mApplication;
+    // 需要的变量
+    // 华为推送token
     private String token ;
-    private Context context;
 
+    public String getToken() {
+        return token;
+    }
 
+    // 旧版本的注册
     public static void registerWith(Registrar registrar) {
 
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "flutter_huawei_push");
-        channel.setMethodCallHandler(new FlutterHuaweiPushPlugin());
+        final MethodChannel channel = new MethodChannel(registrar.messenger(), Method_Channel_ACTION);
+        channel.setMethodCallHandler(new FlutterHuaweiPushPlugin().initPlugin(channel,registrar));
     }
 
-
+    // 注册
     @Override
     public void onAttachedToEngine(@NonNull final FlutterPluginBinding flutterPluginBinding) {
-        final MethodChannel channel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "flutter_huawei_push");
-        final EventChannel eventChannel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), EVENT_ACTION);
-        this.flutterPluginBinding = flutterPluginBinding;
-        this.context = flutterPluginBinding.getApplicationContext();
-        this.channel = channel;
-        this.eventChannel = eventChannel;
-        channel.setMethodCallHandler(new FlutterHuaweiPushPlugin());
-        eventChannel.setStreamHandler(new EventChannel.StreamHandler() {
-            private BroadcastReceiver chargingStateChangeReceiver;
-
-            @Override
-            public void onListen(Object arguments, EventChannel.EventSink events) {
-                chargingStateChangeReceiver = createChargingStateChangeReceiver(events);
-                flutterPluginBinding.getApplicationContext().registerReceiver(
-                        chargingStateChangeReceiver, new IntentFilter(EVENT_TOKEN));
-            }
-
-            @Override
-            public void onCancel(Object arguments) {
-                flutterPluginBinding.getApplicationContext().unregisterReceiver(chargingStateChangeReceiver);
-                chargingStateChangeReceiver = null;
-            }
-        });
-
+        mMethodChannel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), Method_Channel_ACTION);
+        mApplication = (Application) flutterPluginBinding.getApplicationContext();
+        mMethodChannel.setMethodCallHandler(new FlutterHuaweiPushPlugin());
     }
 
-    private BroadcastReceiver createChargingStateChangeReceiver(final EventChannel.EventSink events) {
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        mMethodChannel.setMethodCallHandler(null);
+        mMethodChannel = null;
+    }
 
-
-        return new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Log.d("aaaaaaaaaaaaaa", "1111111111111111111");
-                String status = intent.getStringExtra("token");
-                if (token != null) {
-                    events.success(token);
-                }
-
-//                if (status == BatteryManager.BATTERY_STATUS_UNKNOWN) {
-//                    events.error("UNAVAILABLE", "Charging status unavailable", null);
-//                } else {
-//                    boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-//                            status == BatteryManager.BATTERY_STATUS_FULL;
-//                    events.success(isCharging ? "charging" : "discharging");
-//                }
-            }
-        };
+    public FlutterHuaweiPushPlugin initPlugin(MethodChannel methodChannel, Registrar registrar) {
+        mMethodChannel = methodChannel;
+        mApplication = (Application) registrar.context().getApplicationContext();
+        mActivity = new WeakReference<>(registrar.activity());
+        return this;
     }
 
 
@@ -123,20 +106,14 @@ public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler
         if (call.method.equals("getPlatformVersion")) {
             result.success("Android " + android.os.Build.VERSION.RELEASE);
         } else if (call.method.equals("getToken")) {
-            Token(call, result);
-            result.success(token);
-        } else if (call.method.equals("Token")) {
-            Token(call, result);
-        } else {
+            Token();
+        }  else {
             result.notImplemented();
         }
     }
 
     //获取token
-    public void Token(MethodCall call, final Result result) {
-        final HashMap<String, Object> map = call.arguments();
-        Log.d(TAG, "getToken： ");
-
+    public void Token() {
         HMSAgent.Push.getToken(new GetTokenHandler() {
             @Override
             public void onResult(final int rtnCode) {
@@ -149,81 +126,37 @@ public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler
                          String token_value= intent.getStringExtra(KEY_TOKEN);
 
                         if (token_value != "" && token_value != null) {
-                            Intent it = new Intent(EVENT_TOKEN);
-                            it.putExtra("token",token_value);
-                            flutterPluginBinding.getApplicationContext().sendBroadcast(it);
-//                            token = token_value;
-////                            it.putExtra("token", token);
-//                            Message message = new Message();
-//                            message.what = 1;
-//                            message.obj = token;
-//                            handler.sendMessage(message);
+                            Message message = new Message();
+                            message.what = 1;
+                            message.obj = token_value;
+                            handler.sendMessage(message);
                         }
-
-//                        map.put("token",token);
-//                        result.success(map);
                     }
                 });
 
             }
         });
 
-//        MyPushService.registerPushCallback(new MyPushService.IPushCallback() {
-//            @Override
-//            public void onReceive(Intent intent) {
-//                // 判断token是否有值
-//                if (intent.hasExtra(KEY_TOKEN)) {
-//                    // 获取token
-//                    token = intent.getStringExtra(KEY_TOKEN);
-////                    channel.invokeMethod("token",token);
-//
-//                    Log.d("aaaaaaaaaaaaaa", "1111111111111111111");
-////                    // 成功返回token
-//                    if (plugineventSink!=null){
-//
-//                        plugineventSink.success(token);Log.d("aaaaaaaaaaaaaa", "222222222222222");
-//                    }
-//                    Log.d("aaaaaaaaaaaaaa", "3333333333333333333");
-////                    result.success(token);
-//                } else {
-////                    // 失败返回错误信息
-////                    result.error("-1", "未拿到token", "未拿到token");
-//                }
-//            }
-//
-//        });
-
     }
-
-
-//    private BroadcastReceiver createEventListener(final EventChannel.EventSink sink){
-//        return new BroadcastReceiver(){
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                if(TextUtils.equals(intent.getAction(),EVENT_ACTION)){
-//                    sink.success(intent.getIntExtra(EVENT_TOKEN,-1));
-//                }
-//            }
-//        };
-//    }
-
 
     @Override
-    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+    public void onAttachedToActivity(ActivityPluginBinding binding) {
+        mActivity = new WeakReference<>(binding.getActivity());
     }
 
-//    @Override
-//    public void onListen(Object arguments, EventChannel.EventSink events) {
-//        mStateChangeReceiver = createEventListener(events);
-//        flutterPluginBinding.getApplicationContext().registerReceiver(mStateChangeReceiver, new IntentFilter(EVENT_ACTION));
-//
-//        plugineventSink = events;
-//
-//    }
-//
-//    @Override
-//    public void onCancel(Object arguments) {
-//        plugineventSink = null;
-//
-//    }
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+
+    }
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
+
+    }
+
+    @Override
+    public void onDetachedFromActivity() {
+        mActivity = null;
+    }
+
 }

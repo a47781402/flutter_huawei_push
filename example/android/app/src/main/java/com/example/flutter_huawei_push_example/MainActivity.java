@@ -8,21 +8,49 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.flutter_huawei_push.FlutterHuaweiPushPlugin;
 import com.huawei.android.hms.agent.HMSAgent;
 import com.huawei.android.hms.agent.common.handler.ConnectHandler;
 import com.huawei.android.hms.agent.push.handler.GetTokenHandler;
 
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 
 public class MainActivity extends FlutterActivity {
 
-
+    private static final String CHANNEL = "huawei.push.channel1";
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
-        GeneratedPluginRegistrant.registerWith(this);
+        GeneratedPluginRegistrant.registerWith(flutterEngine);
         HMSAgent.init(this);
+        getToken();
+        FlutterHuaweiPushPlugin flutterHuaweiPushPlugin = new FlutterHuaweiPushPlugin();
+        flutterHuaweiPushPlugin.Token();
+
+//        MyPushService.registerPushCallback(new MyPushService.IPushCallback() {
+//            @Override
+//            public void onReceive(Intent intent) {
+//                token = intent.getStringExtra("action.updateToken");
+//            }
+//        });
+
+
+        new MethodChannel(flutterEngine.getDartExecutor(), CHANNEL).setMethodCallHandler(
+                new MethodChannel.MethodCallHandler() {
+                    @Override
+                    public void onMethodCall(MethodCall call, MethodChannel.Result result) {
+                        if (call.method.equals("getToken")) {
+
+                            String token = flutterHuaweiPushPlugin.getToken();
+                            result.success(token);
+                        } else {
+                            result.notImplemented();
+                        }
+                    }
+                });
 //        HMSAgent.connect(this, new ConnectHandler() {
 //            @Override
 //            public void onConnect(int rst) {
