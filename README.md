@@ -48,10 +48,5 @@ flutter华为推送
 java
 ```
         HMSAgent.init(this);
-        HMSAgent.connect(this, new ConnectHandler() {
-            @Override
-            public void onConnect(int rst) {
-                Log.e("MainActivity","connect result" + rst);
-            }
-        });
+
 ```
