@@ -1,6 +1,7 @@
 package com.example.flutter_huawei_push_example;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -17,9 +18,10 @@ import io.flutter.plugins.GeneratedPluginRegistrant;
 
 public class MainActivity extends FlutterActivity {
 
+
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
-        GeneratedPluginRegistrant.registerWith(flutterEngine);
+        GeneratedPluginRegistrant.registerWith(this);
         HMSAgent.init(this);
 //        HMSAgent.connect(this, new ConnectHandler() {
 //            @Override
