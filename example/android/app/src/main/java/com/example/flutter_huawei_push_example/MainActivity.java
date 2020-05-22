@@ -1,6 +1,8 @@
 package com.example.flutter_huawei_push_example;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -22,13 +24,26 @@ import io.flutter.plugins.GeneratedPluginRegistrant;
 public class MainActivity extends FlutterActivity {
 
     private static final String CHANNEL = "huawei.push.channel1";
+    private static final String TAG = "MainActivity";
+    private FlutterHuaweiPushPlugin flutterHuaweiPushPlugin;
+
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        flutterHuaweiPushPlugin.getReceiver();
+//    }
+
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine);
         HMSAgent.init(this);
 //        getToken();
-        FlutterHuaweiPushPlugin flutterHuaweiPushPlugin = new FlutterHuaweiPushPlugin();
+        flutterHuaweiPushPlugin = new FlutterHuaweiPushPlugin().getInstance();
         flutterHuaweiPushPlugin.Token();
+        flutterHuaweiPushPlugin.getReceiver();
+
+
 
 //        MyPushService.registerPushCallback(new MyPushService.IPushCallback() {
 //            @Override
@@ -71,36 +86,5 @@ public class MainActivity extends FlutterActivity {
 //        });
     }
 
-    private void getToken() {
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    // read from agconnect-services.json
-                    HMSAgent.Push.getToken(new GetTokenHandler() {
-                        @Override
-                        public void onResult(int rtnCode) {
-                            Log.d("getToken", "get token: end code=" + rtnCode);
-                            String code = rtnCode + "";
 
-                        }
-                    });
-                } catch (Exception e) {
-                    Log.e("getToken", "get token failed, " + e);
-                }
-            }
-        }.start();
-
-    }
-
-
-    public static void HUAWEIConnect(Activity activity) {
-        HMSAgent.connect(activity, new ConnectHandler() {
-            @Override
-            public void onConnect(int rst) {
-                Log.d("MainActivity", "connect result" + rst);
-//                LogUtils.e("connect result" + rst);
-            }
-        });
-    }
 }

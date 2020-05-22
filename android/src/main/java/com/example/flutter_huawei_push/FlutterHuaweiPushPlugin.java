@@ -6,7 +6,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.BatteryManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -42,23 +44,32 @@ public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler
     private static String TAG = "| FlutterHuaweiPushPlugin | Flutter | Android | ";
     // token标记
     private static String KEY_TOKEN = "action.updateToken";
-    private String EVENT_TOKEN = "action.event.token";
     private static String Method_Channel_ACTION = "flutter_huawei_push";
-    private static String EVENT_Channel_ACTION = "flutter_huawei_push_event";
-//    private EventChannel.EventSink plugineventSink;
-//    private BroadcastReceiver mStateChangeReceiver;
+
     // 获取环境
     private FlutterPluginBinding flutterPluginBinding;
     private MethodChannel mMethodChannel;
-    private EventChannel mEventChannel;
     private WeakReference<Activity> mActivity;
     private Application mApplication;
-    // 需要的变量
+
+    // 单例
+    public static FlutterHuaweiPushPlugin instance;
+
     // 华为推送token
     private String token ;
+    // 获取点击事件广播
+    private MyReceiver myReceiver;
+    private String receiverIntent;
 
-    public String getToken() {
-        return token;
+    // 构造方法
+    public FlutterHuaweiPushPlugin() { }
+
+    // 单例模式
+    public static FlutterHuaweiPushPlugin getInstance(){
+        if(instance == null){
+            instance = new FlutterHuaweiPushPlugin();
+        }
+        return instance;
     }
 
     // 旧版本的注册
@@ -68,20 +79,6 @@ public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler
         channel.setMethodCallHandler(new FlutterHuaweiPushPlugin().initPlugin(channel,registrar));
     }
 
-    // 注册
-    @Override
-    public void onAttachedToEngine(@NonNull final FlutterPluginBinding flutterPluginBinding) {
-        mMethodChannel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), Method_Channel_ACTION);
-        mApplication = (Application) flutterPluginBinding.getApplicationContext();
-        mMethodChannel.setMethodCallHandler(new FlutterHuaweiPushPlugin());
-    }
-
-    @Override
-    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-        mMethodChannel.setMethodCallHandler(null);
-        mMethodChannel = null;
-    }
-
     public FlutterHuaweiPushPlugin initPlugin(MethodChannel methodChannel, Registrar registrar) {
         mMethodChannel = methodChannel;
         mApplication = (Application) registrar.context().getApplicationContext();
@@ -89,6 +86,19 @@ public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler
         return this;
     }
 
+    // 注册
+    @Override
+    public void onAttachedToEngine(@NonNull final FlutterPluginBinding flutterPluginBinding) {
+        mMethodChannel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), Method_Channel_ACTION);
+        mApplication = (Application) flutterPluginBinding.getApplicationContext();
+        mMethodChannel.setMethodCallHandler(getInstance());
+    }
+
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        mMethodChannel.setMethodCallHandler(null);
+        mMethodChannel = null;
+    }
 
     Handler handler = new Handler() {
         @Override
@@ -98,6 +108,11 @@ public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler
                 case 1:
                     token = (String) msg.obj;
                     Log.d(TAG, "handleMessage: "+token);
+                    break;
+                case 2:
+                    receiverIntent = (String) msg.obj;
+                    Log.d(TAG, "handleMessage: "+receiverIntent);
+                    break;
             }
         }
     };
@@ -106,15 +121,48 @@ public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
         if (call.method.equals("getPlatformVersion")) {
             result.success("Android " + android.os.Build.VERSION.RELEASE);
-        } else if (call.method.equals("Token")) {
+        } else if (call.method.equals("Token")) {// 请求token
             Token();
             Log.d(TAG, "onMethodCall: "+token);
-        } else if (call.method.equals("getToken")) {
+        } else if (call.method.equals("getToken")) {// 获取token
             Log.d(TAG, "onMethodCall11111: "+token);
             result.success(token);
+        } else if (call.method.equals("Receiver")) { //调用getReceiver注册广播
+            getReceiver();
+            Log.d(TAG, "onMethodCall: "+receiverIntent);
+        } else if (call.method.equals("getIntentMsg")) { //获取返回的intent
+            result.success(receiverIntent);
+            Log.d(TAG, "onMethodCall: "+receiverIntent);
         }  else {
             result.notImplemented();
         }
+    }
+
+    // 接收广播
+    public void getReceiver(){
+        //实例化IntentFilter对象
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("con.flutter.HuaWeiPush");
+        myReceiver = new MyReceiver();
+        //注册广播接收
+        mApplication.registerReceiver(myReceiver,filter);
+//        myReceiver = new MyReceiver();
+        myReceiver.setMyCallBack(new MyReceiver.MyCallBack() {
+            @Override
+            public void getIntent(Intent intent) {
+                if(intent!=null){
+                    Message message = new Message();
+                    message.what = 2;
+//                    Uri uri = intent.getParcelableExtra("HuaWeiPushUri");
+                    String msg = intent.getStringExtra("HuaWeiPushUri");
+//                    String msg = intent.getExtras().getString("HuaWeiPushUri");
+                    message.obj = msg;
+                    handler.sendMessage(message);
+                }
+
+                Log.d("MyReceiver", "getIntent: 0");
+            }
+        });
     }
 
     //获取token
@@ -164,5 +212,6 @@ public class FlutterHuaweiPushPlugin implements FlutterPlugin, MethodCallHandler
     public void onDetachedFromActivity() {
         mActivity = null;
     }
+
 
 }

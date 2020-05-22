@@ -37,6 +37,19 @@
                 android:value="androidhwext:style/Theme.Emui.Translucent" />
         </activity>
 
+        <activity
+            android:name=".TransitionActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="com.example.flutter_huawei_push_example"
+                    android:path="/push"
+                    android:scheme="huawei_push" />
+            </intent-filter>
+        </activity>
+
         <receiver android:name="com.example.flutter_huawei_push.MyPushService">
             <intent-filter>
                 <!-- 必须,用于接收token | Must， for receiving token -->
@@ -44,18 +57,37 @@
                 <!-- 必须，用于接收消息 | Must， used to receive messages-->
                 <action android:name="com.huawei.android.push.intent.RECEIVE" />
                 <action android:name="com.huawei.intent.action.PUSH_DELAY_NOTIFY" />
-                <!-- 可选，用于点击通知栏或通知栏上的按钮后触发onEvent回调 | Optional, click the button on the notification bar or the notification bar to trigger the onevent callback -->
-                <action android:name="com.huawei.android.push.intent.CLICK" />
-                <!-- 可选，查看push通道是否连接，不查看则不需要 | Optional, query whether the push channel is connected or not -->
-                <action android:name="com.huawei.intent.action.PUSH_STATE" />
+<!--                &lt;!&ndash; 可选，用于点击通知栏或通知栏上的按钮后触发onEvent回调 | Optional, click the button on the notification bar or the notification bar to trigger the onevent callback &ndash;&gt;-->
+<!--                <action android:name="com.huawei.android.push.intent.CLICK" />-->
+<!--                &lt;!&ndash; 可选，查看push通道是否连接，不查看则不需要 | Optional, query whether the push channel is connected or not &ndash;&gt;-->
+<!--                <action android:name="com.huawei.intent.action.PUSH_STATE" />-->
             </intent-filter>
         </receiver>
 
         <!-- 接入HMSSDK PUSH模块需要注册 :接收通道发来的通知栏消息 | The access HMSSDK push module needs to be registered: the notification bar message sent from the receiving channel -->
-        <receiver android:name="com.huawei.hms.support.api.push.PushEventReceiver">
+<!--        <receiver android:name="com.huawei.hms.support.api.push.PushEventReceiver">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.huawei.intent.action.PUSH" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
+
+        <receiver android:name="com.example.flutter_huawei_push.HWNotifyReceiver">
             <intent-filter>
-                <action android:name="com.huawei.intent.action.PUSH" />
+                <!-- 用于点击通知栏或通知栏上的按钮后触发onEvent回调 -->
+                <action android:name="com.huawei.android.push.intent.CLICK" />
+                <!-- 查看push通道是否连接, 不查看则不需要 -->
+                <action android:name="com.huawei.intent.action.PUSH_STATE"/>
             </intent-filter>
         </receiver>
+
+<!--        自定义点击事件广播-->
+<!--                <receiver android:name=".MyReceiver">-->
+
+<!--                    <intent-filter>-->
+<!--                        <action android:name="panhouye">-->
+<!--                        </action>-->
+<!--                    </intent-filter>-->
+
+<!--                </receiver>-->
     </application>
 </manifest>

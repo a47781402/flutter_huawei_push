@@ -14,6 +14,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   String _token = 'Unknown';
+  String _huaWeiMsg = 'Unknown';
+
   static const platform = const MethodChannel('huawei.push.channel1');
   StreamSubscription _streamSubscription;
 
@@ -66,6 +68,23 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+
+  Future<void> getHuaWeiMsg() async {
+    String huaWeiMsg;
+    try {
+      final String result = await flutterHuaweiPush.getHuaWeiMsg;
+      huaWeiMsg = result;
+    } on PlatformException catch (e) {
+      huaWeiMsg = "Failed to get battery level: '${e.message}'.";
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _huaWeiMsg = huaWeiMsg;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -75,6 +94,7 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               GestureDetector(
                   onTap: () {
@@ -84,10 +104,11 @@ class _MyAppState extends State<MyApp> {
                   Text('按钮')),
               GestureDetector(
                   onTap: () {
-                    getToken();
+//                    getToken();
+                  getHuaWeiMsg();
                   },
                   child:
-                      Text('Running on: $_token\nRunning on: $_platformVersion\n')),
+                      Text('Running on: $_token\nRunning on: $_platformVersion\nRunning on: $_huaWeiMsg\n')),
             ],
           ),
         ),

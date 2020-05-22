@@ -28,9 +28,6 @@ class FlutterHuaweiPush {
    Future<void>  reqToken() async {
     print("使用了Token");
      _channel.invokeMethod('Token');
-
-//     final Map<dynamic, dynamic> result = await _channel.invokeMethod('Token');
-//     return token;
   }
   ///获取token
   Future<String> get getToken async {
@@ -39,5 +36,15 @@ class FlutterHuaweiPush {
     return token;
   }
 
-
+  /// 注册广播
+  Future<void>  reqReceiver() async {
+    print("使用了Token");
+    _channel.invokeMethod('Receiver');
+  }
+  ///获取广播信息
+  Future<String> get getHuaWeiMsg async {
+    final String intentMsg = await _channel.invokeMethod('getIntentMsg');
+    print(intentMsg);
+    return intentMsg;
+  }
 }
