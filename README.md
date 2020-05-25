@@ -1,5 +1,5 @@
 # flutter_huawei_push
-flutter华为推送
+flutter华为推送 集成2.6版本
 
 ## Getting Started
 
