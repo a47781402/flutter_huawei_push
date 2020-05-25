@@ -39,15 +39,15 @@
 
         <activity
             android:name=".TransitionActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:host="com.example.flutter_huawei_push_example"
-                    android:path="/push"
-                    android:scheme="huawei_push" />
-            </intent-filter>
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.VIEW" />-->
+<!--                <category android:name="android.intent.category.DEFAULT" />-->
+<!--                <category android:name="android.intent.category.BROWSABLE" />-->
+<!--                <data-->
+<!--                    android:host="com.example.flutterHuaWeiPushExample"-->
+<!--                    android:path="/push"-->
+<!--                    android:scheme="huaWeiPush" />-->
+<!--            </intent-filter>-->
         </activity>
 
         <receiver android:name="com.example.flutter_huawei_push.MyPushService">
@@ -80,14 +80,5 @@
             </intent-filter>
         </receiver>
 
-<!--        自定义点击事件广播-->
-<!--                <receiver android:name=".MyReceiver">-->
-
-<!--                    <intent-filter>-->
-<!--                        <action android:name="panhouye">-->
-<!--                        </action>-->
-<!--                    </intent-filter>-->
-
-<!--                </receiver>-->
     </application>
 </manifest>

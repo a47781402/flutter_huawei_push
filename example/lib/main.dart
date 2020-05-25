@@ -15,20 +15,33 @@ class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   String _token = 'Unknown';
   String _huaWeiMsg = 'Unknown';
+  String _name = 'Unknown';
+  String _age = 'Unknown';
 
   static const platform = const MethodChannel('huawei.push.channel1');
-  StreamSubscription _streamSubscription;
 
   final FlutterHuaweiPush flutterHuaweiPush = new FlutterHuaweiPush();
 
   @override
   void initState() {
     super.initState();
+    FlutterHuaweiPush.addPushReceiver(onEvent, onError);
     initPlatformState();
-//    _getEventResult();
   }
 
+  void onError(Object event) {
+    print("onErroronErroronError");
+    print(event);
+  }
 
+  void onEvent(Object event) {
+    Uri uri = Uri.parse(event.toString());
+    setState(() {
+      _age = uri.queryParameters['age'];
+      _name = uri.queryParameters['name'];
+    });
+
+  }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
@@ -108,11 +121,13 @@ class _MyAppState extends State<MyApp> {
                   getHuaWeiMsg();
                   },
                   child:
-                      Text('Running on: $_token\nRunning on: $_platformVersion\nRunning on: $_huaWeiMsg\n')),
+                      Text('Running on: $_token\nRunning on: $_platformVersion\nRunning on: $_huaWeiMsg\nRunning on: $_name\nRunning on: $_age\n')),
             ],
           ),
         ),
       ),
     );
   }
+
+
 }

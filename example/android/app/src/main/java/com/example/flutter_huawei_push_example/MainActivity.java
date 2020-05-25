@@ -23,68 +23,50 @@ import io.flutter.plugins.GeneratedPluginRegistrant;
 
 public class MainActivity extends FlutterActivity {
 
-    private static final String CHANNEL = "huawei.push.channel1";
     private static final String TAG = "MainActivity";
     private FlutterHuaweiPushPlugin flutterHuaweiPushPlugin;
 
-
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        flutterHuaweiPushPlugin.getReceiver();
-//    }
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine);
         HMSAgent.init(this);
-//        getToken();
         flutterHuaweiPushPlugin = new FlutterHuaweiPushPlugin().getInstance();
         flutterHuaweiPushPlugin.Token();
         flutterHuaweiPushPlugin.getReceiver();
 
-
-
-//        MyPushService.registerPushCallback(new MyPushService.IPushCallback() {
-//            @Override
-//            public void onReceive(Intent intent) {
-//                token = intent.getStringExtra("action.updateToken");
-//            }
-//        });
-
-
-//        new MethodChannel(flutterEngine.getDartExecutor(), CHANNEL).setMethodCallHandler(
-//                new MethodChannel.MethodCallHandler() {
-//                    @Override
-//                    public void onMethodCall(MethodCall call, MethodChannel.Result result) {
-//                        if (call.method.equals("getToken")) {
-//
-//                            String token = flutterHuaweiPushPlugin.getToken();
-//                            result.success(token);
-//                        } else {
-//                            result.notImplemented();
-//                        }
-//                    }
-//                });
-//        HMSAgent.connect(this, new ConnectHandler() {
-//            @Override
-//            public void onConnect(int rst) {
-//                Log.e("MainActivity","connect result" + rst);
-//            }
-//        });
-
-//        getToken();
-
-
-//        Log.d("MainActivity", "getToken： ");
-//        HMSAgent.Push.getToken(new GetTokenHandler() {
-//            @Override
-//            public void onResult(int rtnCode) {
-//                Log.d("getToken", "get token: end code=" + rtnCode);
-//                String code = rtnCode + "";
-//            }
-//        });
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getIntentData(getIntent());
     }
 
+    private void getIntentData(Intent intent) {
+        if (intent != null) {
+            try {
+                Uri uri = intent.getData();
+                if (uri == null) {
+                    Log.e(TAG, "getData null");
+                    return;
+                }
+                Intent it = new Intent();
+                it.setAction("con.flutter.HuaWeiPush");
+                it.putExtra("HuaWeiPushUri",uri.toString());
+                sendOrderedBroadcast(it,null);
+            } catch (NullPointerException e) {
+                Log.e(TAG, "NullPointer," + e);
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "NumberFormatException," + e);
+            } catch (UnsupportedOperationException e) {
+                Log.e(TAG, "UnsupportedOperationException," + e);
+            }
 
+        }
+    }
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        getIntentData(intent);
+    }
 }

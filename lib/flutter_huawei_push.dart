@@ -3,15 +3,17 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+typedef void EventHandler(Object event);
+
 class FlutterHuaweiPush {
   final String flutter_log = "| FlutterHuaweiPush | Flutter | ";
 
   factory FlutterHuaweiPush() => _instance;
 
-//  static const MethodChannel _channel =
-//      const MethodChannel('flutter_huawei_push');
   final MethodChannel _channel;
   final EventChannel _eventChannel;
+
+  static EventChannel _channelReciever = const EventChannel('flutter_huawei_receiver');
 
   @visibleForTesting
   FlutterHuaweiPush.private(MethodChannel channel,EventChannel eventChannel) : _channel = channel, _eventChannel = eventChannel;
@@ -22,6 +24,13 @@ class FlutterHuaweiPush {
   Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
     return version;
+  }
+
+  /*
+   * 添加推送回调监听（接收自定义透传消息回调、接收通知消息回调、接收点击通知消息回调、接收别名或标签操作回调）
+   */
+  static addPushReceiver(EventHandler onEvent, EventHandler onError) {
+    _channelReciever.receiveBroadcastStream().listen(onEvent, onError: onError);
   }
 
   /// 请求token
